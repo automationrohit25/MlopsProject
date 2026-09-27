@@ -56,7 +56,7 @@ def train_model(data_dir, output_dir):
     print(report)
 
     # MLflow tracking
-    # Removed mlflow.set_tracking_uri(uri="http://127.0.0.1:5000") for GitHub Actions
+    mlflow.set_tracking_uri(uri="http://127.0.0.1:5000") # Set tracking URI for local UI
     mlflow.set_experiment("Tourism_Prediction_Model")
 
     with mlflow.start_run():
