@@ -49,11 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: data-splits
-          path: |
-            Xtrain.csv
-            Xtest.csv
-            ytrain.csv
-            ytest.csv
+          path: tourism_project/model_building/ # Corrected path
 
   model-traning:
     needs: data-prep
