@@ -1,11 +1,10 @@
-
 name: Tourism Project Pipeline
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # Automatically triggers on push to the main branch
+  workflow_dispatch:  # lets you click "Run workflow" in the Actions tab
 
 permissions:
   contents: write
@@ -14,101 +13,72 @@ jobs:
 
   register-dataset:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install Dependencies
-        run: |
-          pip install -r tourism_project/requirements.txt
-          pip install mlflow
-          mlflow --version
-
+        run: pip install -r tourism_project/requirements.txt
       - name: Register Dataset
         run: python tourism_project/model_building/data_register.py
-
       - name: Upload Registered Dataset
         uses: actions/upload-artifact@v4
         with:
           name: registered-data
           path: tourism_project/data/tourism.csv
 
-
   data-prep:
     needs: register-dataset
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install Dependencies
-        run: |
-          pip install -r tourism_project/requirements.txt
-
+        run: pip install -r tourism_project/requirements.txt
       - name: Download Registered Data
         uses: actions/download-artifact@v4
         with:
           name: registered-data
-          path: tourism_project/data
-
+          path: tourism_project/data # Download to the correct path
       - name: Run Data Preparation
-        run: |
-          python tourism_project/model_building/prep.py
-
+        run: python tourism_project/model_building/prep.py
       - name: Upload Train Test Splits
         uses: actions/upload-artifact@v4
         with:
           name: data-splits
-          path: tourism_project/model_building/
+          path: tourism_project/model_building/ # Corrected path
 
-
-  model-training:
+  model-traning:
     needs: data-prep
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install Dependencies
-        run: |
-          pip install -r tourism_project/requirements.txt
-          pip install mlflow
-
+        run: pip install -r tourism_project/requirements.txt mlflow
       - name: Download Train Test Splits
         uses: actions/download-artifact@v4
         with:
           name: data-splits
-          path: .
-
+          path: . # Download to current directory for easier access by script
       - name: Model Building
-        run: |
-          python tourism_project/model_building/train.py
+        run: python tourism_project/model_building/train.py
         env:
-          MLFLOW_TRACKING_URI: ./mlruns
-          MLFLOW_ALLOW_FILE_STORE: "true"
-
+          MLFLOW_TRACKING_URI: ./mlruns # Force local file-based tracking
       - name: Upload MLflow Logs
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-logs
           path: mlruns/
-
       - name: Commit Trained Model
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tourism_project/deployment/best_model.joblib
+          git add tourism_project/deployment/best_model.joblib   # path to the saved model file
           git commit -m "Add trained model [skip ci]" || echo "No changes to commit"
           git push
