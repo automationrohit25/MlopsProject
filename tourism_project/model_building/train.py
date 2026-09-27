@@ -28,7 +28,7 @@ def train_model(data_dir, output_dir):
     # Define the model pipeline
     model_pipeline = make_pipeline(
         preprocessor,
-        xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss')
+        xgb.XGBClassifier(random_state=42, eval_metric='logloss')
     )
 
     # Define hyperparameters for tuning
