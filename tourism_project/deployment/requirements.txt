@@ -1,5 +1,5 @@
-pandas
+pandas==2.2.2
 streamlit
-scikit-learn
-xgboost
-joblib
+scikit-learn==1.5.1
+xgboost==2.1.1
+joblib==1.4.2
