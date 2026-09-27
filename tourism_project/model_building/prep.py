@@ -12,6 +12,7 @@ def prepare_data(input_file_path, output_dir):
         print("Dropped 'Unnamed: 0' column.")
 
     # Define features (X) and target (y)
+    # CustomerID should have been dropped by data_register.py, so it won't be here.
     X = df.drop('ProdTaken', axis=1)
     y = df['ProdTaken']
 
@@ -37,14 +38,26 @@ if __name__ == "__main__":
     # Adjust paths for execution context
     current_dir = os.getcwd()
     data_input_path = os.path.join(current_dir, 'tourism_project', 'data', 'tourism.csv')
-    # If running from model_building directory in GitHub Actions
-    if not os.path.exists(data_input_path):
-        data_input_path = os.path.join(current_dir, '..', 'data', 'tourism.csv')
+
+    # For GitHub Actions, data_register job ensures the data is in tourism_project/data
+    # No need for complex path logic here, as it will always be downloaded to the correct path
 
     output_directory = os.path.join(current_dir, 'tourism_project', 'model_building')
-    # If running from model_building directory in GitHub Actions
-    if not os.path.exists(os.path.join(output_directory, 'Xtrain.csv')):
-         output_directory = current_dir # save in current directory if in actions workflow
+    # If running from GitHub Actions, this might need to be adjusted if not already existing
+    os.makedirs(output_directory, exist_ok=True)
+    
+    # Check if we are running in the context of GitHub Actions where artifacts might be in root
+    if not os.path.exists(os.path.join(output_directory, 'Xtrain.csv')) and not os.path.exists(os.path.join(output_directory, 'Xtest.csv')):
+        # This handles the case where prep.py is run directly and needs to create its own output dir
+        # or in GitHub Actions where data splits are uploaded from root
+        pass # output_directory is fine as tourism_project/model_building
 
-
+    # When run in GitHub Actions, prep.py might be in the root of the runner's workspace, 
+    # but the output for splits is expected in the model_building directory of the repo structure.
+    # The artifact download ensures tourism_project/data/tourism.csv is present.
+    # The splits should be saved relative to the current working directory, 
+    # which is the root of the cloned repo in Actions.
+    if os.path.basename(current_dir) == 'MlopsProject' and not os.path.exists(os.path.join(current_dir, 'tourism_project', 'model_building')):
+        output_directory = current_dir # save in current directory if in actions workflow
+    
     prepare_data(data_input_path, output_directory)
