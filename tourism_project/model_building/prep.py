@@ -45,19 +45,19 @@ if __name__ == "__main__":
     output_directory = os.path.join(current_dir, 'tourism_project', 'model_building')
     # If running from GitHub Actions, this might need to be adjusted if not already existing
     os.makedirs(output_directory, exist_ok=True)
-
+    
     # Check if we are running in the context of GitHub Actions where artifacts might be in root
     if not os.path.exists(os.path.join(output_directory, 'Xtrain.csv')) and not os.path.exists(os.path.join(output_directory, 'Xtest.csv')):
         # This handles the case where prep.py is run directly and needs to create its own output dir
         # or in GitHub Actions where data splits are uploaded from root
         pass # output_directory is fine as tourism_project/model_building
 
-    # When run in GitHub Actions, prep.py might be in the root of the runner's workspace,
+    # When run in GitHub Actions, prep.py might be in the root of the runner's workspace, 
     # but the output for splits is expected in the model_building directory of the repo structure.
     # The artifact download ensures tourism_project/data/tourism.csv is present.
-    # The splits should be saved relative to the current working directory,
+    # The splits should be saved relative to the current working directory, 
     # which is the root of the cloned repo in Actions.
     if os.path.basename(current_dir) == 'MlopsProject' and not os.path.exists(os.path.join(current_dir, 'tourism_project', 'model_building')):
         output_directory = current_dir # save in current directory if in actions workflow
-
+    
     prepare_data(data_input_path, output_directory)
