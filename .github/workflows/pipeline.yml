@@ -1,6 +1,6 @@
 name: Tourism Project Pipeline
 
-on:
+"on":
   push:
     branches:
       - main  # Automatically triggers on push to the main branch
@@ -51,7 +51,7 @@ jobs:
           name: data-splits
           path: tourism_project/model_building/ # Corrected path
 
-  model-traning:
+  model-training:
     needs: data-prep
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Dependencies
-        run: pip install -r tourism_project/requirements.txt mlflow
+        run: pip install -r tourism_project/requirements.txt
       - name: Download Train Test Splits
         uses: actions/download-artifact@v4
         with:
